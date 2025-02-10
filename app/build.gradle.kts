@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.proyectodivisa"
-        minSdk = 29
+        minSdk = 28
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -56,4 +56,15 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    //API
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    //Appcompat
+    implementation ("androidx.appcompat:appcompat:1.6.1")
+    implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation ("com.google.android.material:material:1.10.0")
+    implementation ("androidx.work:work-runtime:2.8.1")
+    implementation ("androidx.work:work-runtime-ktx:2.8.1")
 }

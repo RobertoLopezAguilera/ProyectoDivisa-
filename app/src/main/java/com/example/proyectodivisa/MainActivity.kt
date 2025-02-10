@@ -1,47 +1,45 @@
 package com.example.proyectodivisa
 
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.proyectodivisa.ui.theme.ProyectoDivisaTheme
+import android.util.Log
+import com.example.proyectodivisa.api.ExchangeRateApi
+import com.example.proyectodivisa.api.ExchangeRateResponse
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            ProyectoDivisaTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+        setContentView(R.layout.activity_main)
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://v6.exchangerate-api.com/v6/YOUR-API-KEY/latest/USD")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val api = retrofit.create(ExchangeRateApi::class.java)
+        val call = api.getExchangeRates()
+
+        call.enqueue(object : Callback<ExchangeRateResponse> {
+            override fun onResponse(call: Call<ExchangeRateResponse>, response: Response<ExchangeRateResponse>) {
+                if (response.isSuccessful) {
+                    val data = response.body()
+                    data?.let {
+                        Log.d("EXCHANGE_RATES", it.conversionRates.toString())
+                    }
+                } else {
+                    Log.e("API_ERROR", "Error: ${response.code()}")
                 }
             }
-        }
-    }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ProyectoDivisaTheme {
-        Greeting("Android")
+            override fun onFailure(call: Call<ExchangeRateResponse>, t: Throwable) {
+                Log.e("API_ERROR", "Error: ${t.message}")
+            }
+        })
     }
 }

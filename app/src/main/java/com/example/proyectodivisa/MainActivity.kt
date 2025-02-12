@@ -1,45 +1,44 @@
 package com.example.proyectodivisa
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import com.example.proyectodivisa.api.ExchangeRateApi
-import com.example.proyectodivisa.api.ExchangeRateResponse
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.proyectodivisa.adapter.DivizaAdapter
+import com.example.proyectodivisa.dao.DivizaDao
+import com.example.proyectodivisa.database.AppDatabase
+import com.example.proyectodivisa.entities.Diviza
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var divizaDao: DivizaDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://v6.exchangerate-api.com/v6/YOUR-API-KEY/latest/USD")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+        // Configurar RecyclerView
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
-        val api = retrofit.create(ExchangeRateApi::class.java)
-        val call = api.getExchangeRates()
+        // Obtener instancia de la base de datos
+        val db = AppDatabase.getDatabase(this)
+        divizaDao = db.divizaDao()
 
-        call.enqueue(object : Callback<ExchangeRateResponse> {
-            override fun onResponse(call: Call<ExchangeRateResponse>, response: Response<ExchangeRateResponse>) {
-                if (response.isSuccessful) {
-                    val data = response.body()
-                    data?.let {
-                        Log.d("EXCHANGE_RATES", it.conversionRates.toString())
-                    }
-                } else {
-                    Log.e("API_ERROR", "Error: ${response.code()}")
-                }
-            }
+        // Cargar datos de la base de datos
+        lifecycleScope.launch {
+            val divizas = loadDivizas()
+            recyclerView.adapter = DivizaAdapter(divizas)
+        }
+    }
 
-            override fun onFailure(call: Call<ExchangeRateResponse>, t: Throwable) {
-                Log.e("API_ERROR", "Error: ${t.message}")
-            }
-        })
+    private suspend fun loadDivizas(): List<Diviza> {
+        return withContext(Dispatchers.IO) {
+            divizaDao.getAllDivizas()
+        }
     }
 }

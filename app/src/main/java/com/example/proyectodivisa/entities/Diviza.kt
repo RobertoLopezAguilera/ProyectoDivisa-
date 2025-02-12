@@ -8,5 +8,6 @@ import androidx.room.PrimaryKey
 data class Diviza(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "diviza_id") val id: Int = 0,
+    @ColumnInfo(name = "codigo") val codigo: String,
     @ColumnInfo(name = "valor") val valor: Double
 )

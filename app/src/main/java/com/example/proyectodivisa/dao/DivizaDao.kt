@@ -6,18 +6,12 @@ import com.example.proyectodivisa.entities.Diviza
 @Dao
 interface DivizaDao {
 
-    @Query("SELECT * FROM Diviza_table")
-    fun getAllDivizas(): List<Diviza>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertDiviza(diviza: Diviza)
 
-    @Update
-    fun updateDiviza(diviza: Diviza)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllDivizas(divizas: List<Diviza>)
 
-    @Delete
-    fun deleteDiviza(diviza: Diviza)
-
-    @Query("DELETE FROM Diviza_table")
-    fun deleteAllDivizas()
+    @Query("SELECT * FROM Diviza_table")
+    fun getAllDivizas(): List<Diviza>
 }

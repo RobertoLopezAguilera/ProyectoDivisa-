@@ -5,6 +5,19 @@
     android:orientation="vertical"
     android:padding="8dp">
 
+    <!-- TextView para mostrar el JSON -->
+    <TextView
+        android:id="@+id/textViewJson"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="JSON de la API"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:padding="8dp"
+        android:background="@android:color/darker_gray"
+        android:textColor="@android:color/white" />
+
+    <!-- RecyclerView para mostrar la lista -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"

@@ -19,7 +19,8 @@ class ExchangeRateRepository(
             val response = RetrofitClient.api.getExchangeRates().execute()
             if (response.isSuccessful) {
                 response.body()?.let { apiResponse ->
-                    // Insertar datos de actualización
+
+                    // Insertar datos de Actualización
                     val actualizacion = Actualizacion(
                         id = 0,
                         timeLastUpdateUnix = apiResponse.time_last_update_unix,
@@ -33,14 +34,16 @@ class ExchangeRateRepository(
                     )
                     actualizacionDao.insertActualizacion(actualizacion)
 
-                    // Insertar datos de divisas
-                    val divizas = apiResponse.conversion_rates.map { (currency, rate) ->
-                        Diviza(id = 0, codigo = currency, valor = rate)
+                    // Insertar datos de Divizas
+                    val divizas = apiResponse.conversion_rates.map { (codigo, valor) ->
+                        Diviza(codigo = codigo, valor = valor)
                     }
-                    divizas.forEach { divizaDao.insertDiviza(it) }
+                    divizas.forEach { diviza ->
+                        divizaDao.insertDiviza(diviza)
+                    }
                 }
             } else {
-                Log.e("ExchangeRateRepository", "Error al obtener datos: ${response.errorBody()?.string()}")
+                Log.e("ExchangeRateRepository", "Error al obtener datos: ${response.errorBody()}")
             }
         }
     }

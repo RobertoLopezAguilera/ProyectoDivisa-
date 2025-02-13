@@ -7,7 +7,7 @@ data class ApiResponse(
     val time_next_update_unix: Long,
     val time_next_update_utc: String,
     val base_code: String,
-    val conversion_rates: Map<String, Double>,
     val documentation: String,
-    val terms_of_use: String
+    val terms_of_use: String,
+    val conversion_rates: Map<String, Double>
 )

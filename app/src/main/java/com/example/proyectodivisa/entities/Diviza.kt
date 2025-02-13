@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "Diviza_table")
 data class Diviza(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "diviza_id") val id: Int = 0,
-    @ColumnInfo(name = "codigo") val codigo: String,
-    @ColumnInfo(name = "valor") val valor: Double
+    @PrimaryKey
+    @ColumnInfo(name = "codigo") val codigo: String, // Código de la divisa (por ejemplo, "USD", "EUR")
+    @ColumnInfo(name = "valor") val valor: Double    // Valor de la tasa de cambio
 )
+

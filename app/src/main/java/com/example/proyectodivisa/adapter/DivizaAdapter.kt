@@ -1,37 +1,31 @@
 package com.example.proyectodivisa.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.proyectodivisa.R
+import com.example.proyectodivisa.databinding.ItemDivizaBinding
 import com.example.proyectodivisa.entities.Diviza
 
-class DivizaAdapter(private val divizaList: List<Diviza>) :
-    RecyclerView.Adapter<DivizaAdapter.DivizaViewHolder>() {
+class DivizaAdapter(private val divizas: List<Diviza>) : RecyclerView.Adapter<DivizaAdapter.DivizaViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DivizaViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_diviza, parent, false)
-        return DivizaViewHolder(view)
+        val binding = ItemDivizaBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return DivizaViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: DivizaViewHolder, position: Int) {
-        val diviza = divizaList[position]
+        val diviza = divizas[position]
         holder.bind(diviza)
     }
 
-    override fun getItemCount(): Int = divizaList.size
+    override fun getItemCount(): Int {
+        return divizas.size
+    }
 
-    class DivizaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val codigoTextView: TextView = itemView.findViewById(R.id.codigoTextView)
-        private val valorTextView: TextView = itemView.findViewById(R.id.valorTextView)
-
+    class DivizaViewHolder(private val binding: ItemDivizaBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(diviza: Diviza) {
-            // Accede directamente a las propiedades "codigo" y "valor" de la entidad
-            codigoTextView.text = diviza.codigo
-            valorTextView.text = diviza.valor.toString()
+            binding.tvDivizaCode.text = diviza.codigo
+            binding.tvDivizaName.text = diviza.valor.toString()
         }
     }
 }

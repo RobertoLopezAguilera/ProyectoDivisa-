@@ -1,26 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="8dp">
+    android:fillViewport="true">
 
-    <!-- TextView para mostrar el JSON -->
-    <TextView
-        android:id="@+id/textViewJson"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="JSON de la API"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:padding="8dp"
-        android:background="@android:color/darker_gray"
-        android:textColor="@android:color/white" />
+        android:orientation="vertical"
+        android:padding="8dp">
 
-    <!-- RecyclerView para mostrar la lista de divisas -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="258dp"
-        android:layout_marginTop="8dp" />
-</LinearLayout>
+        <!-- TextView para mostrar el JSON -->
+        <TextView
+            android:id="@+id/textViewJson"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="JSON de la API"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:padding="8dp"
+            android:background="@android:color/darker_gray"
+            android:textColor="@android:color/white"
+            android:maxLines="5"
+            android:scrollbars="vertical"
+            android:overScrollMode="always" />
+
+        <!-- RecyclerView para mostrar la lista de divisas -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+</ScrollView>

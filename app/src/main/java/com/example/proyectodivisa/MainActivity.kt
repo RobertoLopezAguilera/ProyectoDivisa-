@@ -34,6 +34,8 @@ class MainActivity : AppCompatActivity() {
 
         // Configurar TextView para mostrar el JSON
         textViewJson = findViewById(R.id.textViewJson)
+        textViewJson.isVerticalScrollBarEnabled = true
+        textViewJson.movementMethod = android.text.method.ScrollingMovementMethod()
 
         // Inicializar el adaptador
         divizaAdapter = DivizaAdapter(emptyList())
@@ -65,6 +67,7 @@ class MainActivity : AppCompatActivity() {
 
                             // Actualizar el adaptador con los datos de la API
                             divizaAdapter.updateData(divizas)
+
                         }
                     }
                 } else {
@@ -90,8 +93,6 @@ class MainActivity : AppCompatActivity() {
 
     // Función para convertir la respuesta de la API a una lista de Diviza
     private fun ApiResponse.toDivizaList(): List<Diviza> {
-        // Aquí debes implementar la lógica para convertir la respuesta de la API a una lista de Diviza
-        // Por ejemplo:
         return this.conversion_rates.map { (currency, rate) ->
             Diviza(currency, rate)
         }

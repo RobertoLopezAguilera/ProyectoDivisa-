@@ -80,4 +80,5 @@ dependencies {
 
     //SwipeRefreshLayout
     implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("androidx.recyclerview:recyclerview:1.2.1")
 }

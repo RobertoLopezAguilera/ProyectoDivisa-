@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.proyectodivisa.databinding.ItemDivizaBinding
 import com.example.proyectodivisa.entities.Diviza
 
-class DivizaAdapter(private val divizas: List<Diviza>) : RecyclerView.Adapter<DivizaAdapter.DivizaViewHolder>() {
+class DivizaAdapter(private var divizas: List<Diviza>) : RecyclerView.Adapter<DivizaAdapter.DivizaViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DivizaViewHolder {
         val binding = ItemDivizaBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -20,6 +20,11 @@ class DivizaAdapter(private val divizas: List<Diviza>) : RecyclerView.Adapter<Di
 
     override fun getItemCount(): Int {
         return divizas.size
+    }
+
+    fun updateData(newDivizas: List<Diviza>) {
+        divizas = newDivizas
+        notifyDataSetChanged()
     }
 
     class DivizaViewHolder(private val binding: ItemDivizaBinding) : RecyclerView.ViewHolder(binding.root) {

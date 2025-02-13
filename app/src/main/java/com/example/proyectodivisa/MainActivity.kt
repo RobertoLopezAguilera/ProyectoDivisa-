@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.proyectodivisa.adapter.DivizaAdapter
+import com.example.proyectodivisa.api.ApiResponse
 import com.example.proyectodivisa.api.RetrofitClient
 import com.example.proyectodivisa.dao.DivizaDao
 import com.example.proyectodivisa.database.AppDatabase
@@ -21,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var divizaDao: DivizaDao
     private lateinit var recyclerView: RecyclerView
     private lateinit var textViewJson: TextView
+    private lateinit var divizaAdapter: DivizaAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +35,10 @@ class MainActivity : AppCompatActivity() {
         // Configurar TextView para mostrar el JSON
         textViewJson = findViewById(R.id.textViewJson)
 
+        // Inicializar el adaptador
+        divizaAdapter = DivizaAdapter(emptyList())
+        recyclerView.adapter = divizaAdapter
+
         // Obtener instancia de la base de datos
         val db = AppDatabase.getDatabase(this)
         divizaDao = db.divizaDao()
@@ -40,7 +46,6 @@ class MainActivity : AppCompatActivity() {
         // Llamar a la API y mostrar resultados
         lifecycleScope.launch {
             fetchAndDisplayApiData()
-            loadAndDisplayDivizas()
         }
     }
 
@@ -51,7 +56,16 @@ class MainActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
                     withContext(Dispatchers.Main) {
-                        textViewJson.text = apiResponse.toString() // Mostrar el JSON en el TextView
+                        if (apiResponse != null) {
+                            // Mostrar el JSON en el TextView
+                            textViewJson.text = apiResponse.toString()
+
+                            // Convertir la respuesta de la API a una lista de Diviza
+                            val divizas = apiResponse.toDivizaList()
+
+                            // Actualizar el adaptador con los datos de la API
+                            divizaAdapter.updateData(divizas)
+                        }
                     }
                 } else {
                     withContext(Dispatchers.Main) {
@@ -74,20 +88,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun loadAndDisplayDivizas() {
-        withContext(Dispatchers.IO) {
-            val divizas = divizaDao.getAllDivizas()
-            withContext(Dispatchers.Main) {
-                if (divizas.isNotEmpty()) {
-                    recyclerView.adapter = DivizaAdapter(divizas)
-                } else {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "No hay datos en la base de datos.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
+    // Función para convertir la respuesta de la API a una lista de Diviza
+    private fun ApiResponse.toDivizaList(): List<Diviza> {
+        // Aquí debes implementar la lógica para convertir la respuesta de la API a una lista de Diviza
+        // Por ejemplo:
+        return this.conversion_rates.map { (currency, rate) ->
+            Diviza(currency, rate)
         }
     }
 }

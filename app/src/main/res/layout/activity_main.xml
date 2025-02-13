@@ -17,10 +17,10 @@
         android:background="@android:color/darker_gray"
         android:textColor="@android:color/white" />
 
-    <!-- RecyclerView para mostrar la lista -->
+    <!-- RecyclerView para mostrar la lista de divisas -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="258dp"
         android:layout_marginTop="8dp" />
 </LinearLayout>

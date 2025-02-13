@@ -1,5 +1,8 @@
 package com.example.proyectodivisa
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
@@ -34,8 +37,6 @@ class MainActivity : AppCompatActivity() {
 
         // Configurar TextView para mostrar el JSON
         textViewJson = findViewById(R.id.textViewJson)
-        textViewJson.isVerticalScrollBarEnabled = true
-        textViewJson.movementMethod = android.text.method.ScrollingMovementMethod()
 
         // Inicializar el adaptador
         divizaAdapter = DivizaAdapter(emptyList())
@@ -45,10 +46,22 @@ class MainActivity : AppCompatActivity() {
         val db = AppDatabase.getDatabase(this)
         divizaDao = db.divizaDao()
 
-        // Llamar a la API y mostrar resultados
+        // Verificar conexión a Internet y cargar datos
         lifecycleScope.launch {
-            fetchAndDisplayApiData()
+            if (isInternetAvailable()) { // Llamar a la función de extensión
+                fetchAndDisplayApiData() // Si hay Internet, obtener datos de la API
+            } else {
+                loadAndDisplayDivizas() // Si no hay Internet, cargar datos de Room
+            }
         }
+    }
+
+    // Función de extensión para verificar la conexión a Internet
+    private fun isInternetAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     private suspend fun fetchAndDisplayApiData() {
@@ -65,9 +78,11 @@ class MainActivity : AppCompatActivity() {
                             // Convertir la respuesta de la API a una lista de Diviza
                             val divizas = apiResponse.toDivizaList()
 
-                            // Actualizar el adaptador con los datos de la API
-                            divizaAdapter.updateData(divizas)
+                            // Insertar o actualizar datos en Room
+                            insertOrUpdateDivizas(divizas)
 
+                            // Mostrar los datos en el RecyclerView
+                            divizaAdapter.updateData(divizas)
                         }
                     }
                 } else {
@@ -84,6 +99,31 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(
                         this@MainActivity,
                         "Error: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
+
+    private suspend fun insertOrUpdateDivizas(divizas: List<Diviza>) {
+        withContext(Dispatchers.IO) {
+            divizas.forEach { diviza ->
+                divizaDao.insertDiviza(diviza) // Usa OnConflictStrategy.REPLACE para actualizar
+            }
+        }
+    }
+
+    private suspend fun loadAndDisplayDivizas() {
+        withContext(Dispatchers.IO) {
+            val divizas = divizaDao.getAllDivizas()
+            withContext(Dispatchers.Main) {
+                if (divizas.isNotEmpty()) {
+                    divizaAdapter.updateData(divizas)
+                } else {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "No hay datos en la base de datos.",
                         Toast.LENGTH_LONG
                     ).show()
                 }

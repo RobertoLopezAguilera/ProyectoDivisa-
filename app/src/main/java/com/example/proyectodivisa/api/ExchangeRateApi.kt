@@ -6,7 +6,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 interface ExchangeRateApi {
-    @GET("v6/7298488e535953dbbefee5c9/latest/USD")
+    @GET("v6/7298488e535953dbbefee5c9/latest/MXN")
     fun getExchangeRates(): Call<ApiResponse>
 }
 

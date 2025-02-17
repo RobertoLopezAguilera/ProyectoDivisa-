@@ -16,12 +16,9 @@ data class Actualizacion(
     @ColumnInfo(name = "time_next_update_unix") val timeNextUpdateUnix: Long,
     // Fecha y hora de la próxima actualización en formato UTC
     @ColumnInfo(name = "time_next_update_utc") val timeNextUpdateUtc: String,
-    // Moneda base (por ejemplo, "USD")
+    // Moneda base
     @ColumnInfo(name = "base_code") val baseCode: String,
-    // Resultado de la operación (por ejemplo, "success")
     @ColumnInfo(name = "result") val result: String,
-    // URL de la documentación
     @ColumnInfo(name = "documentation") val documentation: String,
-    // URL de los términos de uso
     @ColumnInfo(name = "terms_of_use") val termsOfUse: String
 )

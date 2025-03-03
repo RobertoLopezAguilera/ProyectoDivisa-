@@ -1,18 +1,16 @@
-package com.example.proyectodivisa.database
+package com.example.proyectodivisa
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.proyectodivisa.dao.ActualizacionDao
-import com.example.proyectodivisa.dao.DivizaDao
-import com.example.proyectodivisa.entities.Actualizacion
-import com.example.proyectodivisa.entities.Diviza
+import com.example.proyectodivisa.database.ExchangeRate
+import com.example.proyectodivisa.database.UpdateInfo
+import com.example.proyectodivisa.model.ExchangeRateDao
 
-@Database(entities = [Diviza::class, Actualizacion::class], version = 2, exportSchema = false)
+@Database(entities = [ExchangeRate::class, UpdateInfo::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun divizaDao(): DivizaDao
-    abstract fun actualizacionDao(): ActualizacionDao
+    abstract fun exchangeRateDao(): ExchangeRateDao
 
     companion object {
         @Volatile
@@ -23,9 +21,8 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "diviza_database"
-                ).fallbackToDestructiveMigration() // Elimina esta línea en producción
-                    .build()
+                    "exchange_rate_db"
+                ).build()
                 INSTANCE = instance
                 instance
             }

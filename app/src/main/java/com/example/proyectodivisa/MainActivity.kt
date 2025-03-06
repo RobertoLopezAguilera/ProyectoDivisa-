@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
 
         //WorkManager
         val workRequest = PeriodicWorkRequestBuilder<CurrencySyncWorker>(
-            24, TimeUnit.HOURS
+            1, TimeUnit.HOURS
         )
             .setConstraints(
                 Constraints.Builder()

@@ -29,24 +29,26 @@ class ExchangeRateViewModel(application: Application) : AndroidViewModel(applica
     }
 
     // Método para obtener los datos históricos desde el ContentProvider
-    fun loadHistoricalRates(context: Context, currency: String, startDate: String, endDate: String) {
-        viewModelScope.launch {
-            val uri = Uri.parse("content://com.example.proyectodivisa.provider/exchange_rates/$currency?start=$startDate&end=$endDate")
-            val cursor = context.contentResolver.query(uri, null, null, null, null)
-            val rates = mutableListOf<ExchangeRate>()
+    fun getHistoricalRates(context: Context, currency: String, startDate: Long, endDate: Long): List<ExchangeRate> {
+        val uri = Uri.parse("content://com.example.proyectodivisa.provider/exchange_rates/$currency/$startDate/$endDate")
+        val projection = arrayOf("currency", "rate", "date")
+        val rates = mutableListOf<ExchangeRate>()
 
-            cursor?.use {
-                val currencyIndex = it.getColumnIndex("currency")
-                val rateIndex = it.getColumnIndex("rate")
+        context.contentResolver.query(uri, projection, null, null, "date ASC")?.use { cursor ->
+            val currencyIndex = cursor.getColumnIndex("currency")
+            val rateIndex = cursor.getColumnIndex("rate")
+            val dateIndex = cursor.getColumnIndex("date")
 
-                while (it.moveToNext()) {
-                    val currency = it.getString(currencyIndex)
-                    val rate = it.getDouble(rateIndex)
-                    rates.add(ExchangeRate(currency, rate))
-                }
+            while (cursor.moveToNext()) {
+                val exchangeRate = ExchangeRate(
+                    currency = cursor.getString(currencyIndex),
+                    rate = cursor.getDouble(rateIndex),
+                    date = cursor.getLong(dateIndex)
+                )
+                rates.add(exchangeRate)
             }
-
-            _historicalRates.postValue(rates)
         }
+        return rates
     }
+
 }

@@ -14,12 +14,10 @@ class ExchangeRateProvider : ContentProvider() {
         const val AUTHORITY = "com.example.proyectodivisa.provider"
         val CONTENT_URI: Uri = Uri.parse("content://$AUTHORITY/exchange_rates")
 
-        private const val CODE_EXCHANGE_RATE = 1
-        private const val CODE_EXCHANGE_RATE_RANGE = 2
+        private const val CODE_EXCHANGE_RATE_RANGE = 1
 
         private val uriMatcher = UriMatcher(UriMatcher.NO_MATCH).apply {
-            addURI(AUTHORITY, "exchange_rates/*", CODE_EXCHANGE_RATE)
-            addURI(AUTHORITY, "exchange_rates/range/#/#", CODE_EXCHANGE_RATE_RANGE)
+            addURI(AUTHORITY, "exchange_rates/*/#/#", CODE_EXCHANGE_RATE_RANGE)
         }
     }
 
@@ -35,15 +33,12 @@ class ExchangeRateProvider : ContentProvider() {
         selectionArgs: Array<String>?, sortOrder: String?
     ): Cursor? {
         return when (uriMatcher.match(uri)) {
-            CODE_EXCHANGE_RATE -> {
-                val currency = uri.lastPathSegment ?: return null
-                exchangeRateDao.getExchangeRateCursor(currency)
-            }
             CODE_EXCHANGE_RATE_RANGE -> {
                 val pathSegments = uri.pathSegments
-                val startDate = pathSegments[2].toLongOrNull() ?: return null
-                val endDate = pathSegments[3].toLongOrNull() ?: return null
-                exchangeRateDao.getExchangeRatesInRangeCursor(startDate, endDate)
+                val currency = pathSegments[1] // Moneda (por ejemplo, "USD")
+                val startDate = pathSegments[2].toLongOrNull() ?: return null // Fecha de inicio en milisegundos
+                val endDate = pathSegments[3].toLongOrNull() ?: return null // Fecha de fin en milisegundos
+                exchangeRateDao.getExchangeRatesInRangeCursor(currency, startDate, endDate)
             }
             else -> {
                 Log.e("ContentProvider", "URI no soportado: $uri")

@@ -12,7 +12,7 @@ import com.example.proyectodivisa.database.UpdateInfo
 @Dao
 interface ExchangeRateDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRates(rates: List<ExchangeRate>)
+    fun insertRates(rates: List<ExchangeRate>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUpdateInfo(updateInfo: UpdateInfo)
@@ -29,4 +29,6 @@ interface ExchangeRateDao {
     @Query("SELECT * FROM update_info WHERE lastUpdateUnix BETWEEN :startDate AND :endDate")
     fun getExchangeRatesInRangeCursor(startDate: Long, endDate: Long): Cursor
 
+    @Query("SELECT * FROM exchange_rates WHERE currency = :currency DESC LIMIT :limit")
+    fun getLatestExchangeRates(currency: String, limit: Int): List<ExchangeRate>
 }

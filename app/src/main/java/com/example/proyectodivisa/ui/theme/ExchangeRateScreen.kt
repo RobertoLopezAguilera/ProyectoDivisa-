@@ -84,12 +84,51 @@ fun ExchangeRateScreen(viewModel: ExchangeRateViewModel) {
 }
 
 @Composable
+fun ExchangeRateChart(rates: List<ExchangeRate>) {
+    val context = LocalContext.current
+
+    AndroidView(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .padding(16.dp),
+        factory = { ctx ->
+            LineChart(ctx).apply {
+                description.isEnabled = false
+                xAxis.position = XAxis.XAxisPosition.BOTTOM
+                xAxis.setDrawGridLines(false)
+                axisRight.isEnabled = false
+                legend.isEnabled = true
+            }
+        },
+        update = { chart ->
+            val entries = rates.mapIndexed { index, rate ->
+                Entry(index.toFloat(), rate.rate.toFloat())
+            }
+
+            val lineDataSet = LineDataSet(entries, "Tipo de Cambio").apply {
+                color = Color(0xFF1976D2).toArgb()
+                valueTextColor = Color.Black.toArgb()
+                lineWidth = 2f
+                setCircleColor(Color(0xFF1976D2).toArgb())
+                setDrawFilled(true)
+                fillColor = Color(0xFF64B5F6).toArgb()
+                fillAlpha = 100
+            }
+
+            chart.data = LineData(lineDataSet)
+            chart.invalidate() // Refrescar gráfico
+        }
+    )
+}
+
+@Composable
 fun CurrencyCard(currency: String, rate: Double, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable() { onClick() },
+            .clickable { onClick() },
         elevation = 6.dp,
         backgroundColor = Color(0xFFE3F2FD)
     ) {
@@ -111,4 +150,9 @@ fun CurrencyCard(currency: String, rate: Double, onClick: () -> Unit) {
             )
         }
     }
+}
+
+fun formatCurrency(value: Double): String {
+    val format = NumberFormat.getCurrencyInstance(Locale.US)
+    return format.format(value)
 }

@@ -12,23 +12,20 @@ import com.example.proyectodivisa.database.UpdateInfo
 @Dao
 interface ExchangeRateDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertRates(rates: List<ExchangeRate>)
+    suspend fun insertRates(rates: List<ExchangeRate>)
+
+    @Query("SELECT * FROM exchange_rates WHERE currency = :currency AND date BETWEEN :startDate AND :endDate ORDER BY date ASC")
+    fun getExchangeRatesInRangeCursor(currency: String, startDate: Long, endDate: Long): Cursor
+
+    @Query("SELECT * FROM exchange_rates WHERE currency = :currency ORDER BY date DESC LIMIT :limit")
+    fun getLatestRates(currency: String, limit: Int): Flow<List<ExchangeRate>> // Usar Flow
+
+    @Query("SELECT * FROM exchange_rates")
+    fun getAllRates(): Flow<List<ExchangeRate>> // Usar Flow
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUpdateInfo(updateInfo: UpdateInfo)
 
-    @Query("SELECT * FROM exchange_rates")
-    fun getAllRates(): Flow<List<ExchangeRate>>
-
     @Query("SELECT * FROM update_info ORDER BY id DESC LIMIT 1")
-    fun getLatestUpdateInfo(): Flow<UpdateInfo>
-
-    @Query("SELECT * FROM exchange_rates WHERE currency = :currency")
-    fun getExchangeRateCursor(currency: String): Cursor
-
-    @Query("SELECT * FROM update_info WHERE lastUpdateUnix BETWEEN :startDate AND :endDate")
-    fun getExchangeRatesInRangeCursor(startDate: Long, endDate: Long): Cursor
-
-    @Query("SELECT * FROM exchange_rates WHERE currency = :currency DESC LIMIT :limit")
-    fun getLatestExchangeRates(currency: String, limit: Int): List<ExchangeRate>
+    fun getLatestUpdateInfo(): Flow<UpdateInfo?> // Usar Flow
 }

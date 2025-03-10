@@ -11,11 +11,15 @@ import com.example.proyectodivisa.database.UpdateInfo
 
 @Dao
 interface ExchangeRateDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertRates(rates: List<ExchangeRate>)
 
-    @Query("SELECT * FROM exchange_rates WHERE currency = :currency AND date BETWEEN :startDate AND :endDate ORDER BY date ASC")
+    @Query("SELECT * FROM exchange_rates WHERE currency = :currency BETWEEN :startDate AND :endDate")
     fun getExchangeRatesInRangeCursor(currency: String, startDate: Long, endDate: Long): Cursor
+
+    @Query("SELECT * FROM exchange_rates WHERE currency = :currency ORDER BY date DESC LIMIT 10")
+    fun getLast10ExchangeRatesByCurrency(currency: String): Cursor
+
 
     @Query("SELECT * FROM exchange_rates WHERE currency = :currency ORDER BY date DESC LIMIT :limit")
     fun getLatestRates(currency: String, limit: Int): Flow<List<ExchangeRate>> // Usar Flow

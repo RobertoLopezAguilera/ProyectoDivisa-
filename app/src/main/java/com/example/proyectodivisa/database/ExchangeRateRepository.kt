@@ -43,11 +43,11 @@ class ExchangeRateRepository(context: Context) {
                         ExchangeRate(
                             currency = currency,
                             rate = rate,
-                            date = currentDate
+                            date = currentDate // Usa la fecha actual para cada registro
                         )
                     }
 
-                    dao.insertRates(ratesList)
+                    dao.insertRates(ratesList) // Inserta nuevos registros
                     dao.insertUpdateInfo(
                         UpdateInfo(
                             lastUpdateUnix = response.lastUpdateUnix,

@@ -15,11 +15,15 @@ class ExchangeRateProvider : ContentProvider() {
         val CONTENT_URI: Uri = Uri.parse("content://$AUTHORITY/exchange_rates")
 
         private const val CODE_EXCHANGE_RATE_RANGE = 1
+        private const val CODE_EXCHANGE_RATE_LAST_10 = 2  // Nueva constante
 
         private val uriMatcher = UriMatcher(UriMatcher.NO_MATCH).apply {
             addURI(AUTHORITY, "exchange_rates/*/#/#", CODE_EXCHANGE_RATE_RANGE)
+            addURI(AUTHORITY, "exchange_rates/*", CODE_EXCHANGE_RATE_LAST_10)  // Nueva URI
         }
     }
+
+
 
     private lateinit var exchangeRateDao: ExchangeRateDao
 
@@ -35,17 +39,25 @@ class ExchangeRateProvider : ContentProvider() {
         return when (uriMatcher.match(uri)) {
             CODE_EXCHANGE_RATE_RANGE -> {
                 val pathSegments = uri.pathSegments
-                val currency = pathSegments[1] // Moneda (por ejemplo, "USD")
-                val startDate = pathSegments[2].toLongOrNull() ?: return null // Fecha de inicio en milisegundos
-                val endDate = pathSegments[3].toLongOrNull() ?: return null // Fecha de fin en milisegundos
+                val currency = pathSegments[1] // Moneda
+                val startDate = pathSegments[2].toLongOrNull() ?: return null
+                val endDate = pathSegments[3].toLongOrNull() ?: return null
+                Log.d("ExchangeRateProvider", "Query con moneda=$currency, startDate=$startDate, endDate=$endDate")
                 exchangeRateDao.getExchangeRatesInRangeCursor(currency, startDate, endDate)
             }
+            CODE_EXCHANGE_RATE_LAST_10 -> {  // Nueva opción
+                val currency = uri.lastPathSegment ?: return null
+                Log.d("ExchangeRateProvider", "Query últimos 10 registros de la moneda $currency")
+                exchangeRateDao.getLast10ExchangeRatesByCurrency(currency)
+            }
             else -> {
-                Log.e("ContentProvider", "URI no soportado: $uri")
+                Log.e("ExchangeRateProvider", "URI no soportado: $uri")
                 null
             }
         }
     }
+
+
 
     override fun getType(uri: Uri): String? = "vnd.android.cursor.dir/vnd.$AUTHORITY.exchange_rates"
 

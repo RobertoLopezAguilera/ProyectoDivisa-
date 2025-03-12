@@ -2,8 +2,6 @@ package com.example.proyectodivisa.database
 
 import android.content.Context
 import android.util.Log
-import com.example.proyectodivisa.database.ExchangeRate
-import com.example.proyectodivisa.database.ExchangeRateApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.example.proyectodivisa.AppDatabase
@@ -37,7 +35,7 @@ class ExchangeRateRepository(context: Context) {
                 Log.d("API_RESPONSE", "Datos obtenidos: ${response.rates}")
                 if (response.rates.isNotEmpty()) {
                     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                    val currentDate = dateFormat.format(Date())
+                    val currentDate = System.currentTimeMillis()
 
                     val ratesList = response.rates.map { (currency, rate) ->
                         ExchangeRate(

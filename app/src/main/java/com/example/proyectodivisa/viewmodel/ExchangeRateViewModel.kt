@@ -3,7 +3,6 @@ package com.example.proyectodivisa.viewmodel
 import android.app.Application
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,7 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.proyectodivisa.database.ExchangeRateRepository
 import com.example.proyectodivisa.database.ExchangeRate
 import com.example.proyectodivisa.database.UpdateInfo
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ExchangeRateViewModel(application: Application) : AndroidViewModel(application) {
@@ -32,27 +31,32 @@ class ExchangeRateViewModel(application: Application) : AndroidViewModel(applica
     }
 
     // Método para obtener los datos históricos desde el ContentProvider
-    fun getHistoricalRates(context: Context, currency: String, startDate: Long, endDate: Long): List<ExchangeRate> {
-        val uri = Uri.parse("content://com.example.proyectodivisa.provider/exchange_rates/$currency/$startDate/$endDate")
-        val projection = arrayOf("id", "currency", "rate", "date")
-        val rates = mutableListOf<ExchangeRate>()
+    fun getHistoricalRates(context: Context, currency: String, startDate: Long, endDate: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val uri = Uri.parse("content://com.example.proyectodivisa.provider/exchange_rates/$currency/$startDate/$endDate")
+            val projection = arrayOf("id", "currency", "rate", "date")
+            val rates = mutableListOf<ExchangeRate>()
 
-        context.contentResolver.query(uri, projection, null, null, "date ASC")?.use { cursor ->
-            val idIndex = cursor.getColumnIndex("id")
-            val currencyIndex = cursor.getColumnIndex("currency")
-            val rateIndex = cursor.getColumnIndex("rate")
-            val dateIndex = cursor.getColumnIndex("date")
+            context.contentResolver.query(uri, projection, null, null, "date ASC")?.use { cursor ->
+                val idIndex = cursor.getColumnIndex("id")
+                val currencyIndex = cursor.getColumnIndex("currency")
+                val rateIndex = cursor.getColumnIndex("rate")
+                val dateIndex = cursor.getColumnIndex("date")
 
-            while (cursor.moveToNext()) {
-                val exchangeRate = ExchangeRate(
-                    id = cursor.getInt(idIndex),
-                    currency = cursor.getString(currencyIndex),
-                    rate = cursor.getDouble(rateIndex),
-                    date = cursor.getString(dateIndex)
-                )
-                rates.add(exchangeRate)
+                while (cursor.moveToNext()) {
+                    val exchangeRate = ExchangeRate(
+                        id = cursor.getInt(idIndex),
+                        currency = cursor.getString(currencyIndex),
+                        rate = cursor.getDouble(rateIndex),
+                        date = cursor.getLong(dateIndex)
+                    )
+                    rates.add(exchangeRate)
+                }
             }
+
+            _historicalRates.postValue(rates) // Publicar los resultados en LiveData
         }
-        return rates
     }
+
+
 }

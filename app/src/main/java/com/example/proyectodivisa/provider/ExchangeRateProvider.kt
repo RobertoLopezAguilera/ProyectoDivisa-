@@ -7,6 +7,8 @@ import android.net.Uri
 import android.util.Log
 import com.example.proyectodivisa.AppDatabase
 import com.example.proyectodivisa.model.ExchangeRateDao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 class ExchangeRateProvider : ContentProvider() {
 
@@ -33,30 +35,41 @@ class ExchangeRateProvider : ContentProvider() {
     }
 
     override fun query(
-        uri: Uri, projection: Array<String>?, selection: String?,
-        selectionArgs: Array<String>?, sortOrder: String?
+        uri: Uri,
+        projection: Array<out String>?,
+        selection: String?,
+        selectionArgs: Array<out String>?,
+        sortOrder: String?
     ): Cursor? {
-        return when (uriMatcher.match(uri)) {
-            CODE_EXCHANGE_RATE_RANGE -> {
-                val pathSegments = uri.pathSegments
-                val currency = pathSegments[1] // Moneda
-                val startDate = pathSegments[2].toLongOrNull() ?: return null
-                val endDate = pathSegments[3].toLongOrNull() ?: return null
-                Log.d("ExchangeRateProvider", "Query con moneda=$currency, startDate=$startDate, endDate=$endDate")
-                exchangeRateDao.getExchangeRatesInRangeCursor(currency, startDate, endDate)
+        return runBlocking(Dispatchers.IO) {
+            val db = AppDatabase.getDatabase(context!!) // Asegura que la BD está inicializada
+
+            val cursor: Cursor? = when (uriMatcher.match(uri)) {
+                CODE_EXCHANGE_RATE_RANGE -> {
+                    val currency = uri.pathSegments[1]
+                    val startDate = uri.pathSegments[2].toLong()
+                    val endDate = uri.pathSegments[3].toLong()
+
+                    Log.d("ExchangeRateProvider", "Consulta recibida: currency=$currency, startDate=$startDate, endDate=$endDate")
+
+                    val resultCursor = db.exchangeRateDao().getExchangeRatesInRangeCursor(currency, startDate, endDate)
+
+                    if (resultCursor != null && resultCursor.count > 0) {
+                        Log.d("ExchangeRateProvider", "Cursor tiene ${resultCursor.count} registros")
+                    } else {
+                        Log.e("ExchangeRateProvider", "Cursor vacío")
+                    }
+
+                    resultCursor
+                }
+                else -> {
+                    Log.e("ExchangeRateProvider", "URI no reconocida: $uri")
+                    null
+                }
             }
-            CODE_EXCHANGE_RATE_LAST_10 -> {  // Nueva opción
-                val currency = uri.lastPathSegment ?: return null
-                Log.d("ExchangeRateProvider", "Query últimos 10 registros de la moneda $currency")
-                exchangeRateDao.getLast10ExchangeRatesByCurrency(currency)
-            }
-            else -> {
-                Log.e("ExchangeRateProvider", "URI no soportado: $uri")
-                null
-            }
+            cursor
         }
     }
-
 
 
     override fun getType(uri: Uri): String? = "vnd.android.cursor.dir/vnd.$AUTHORITY.exchange_rates"

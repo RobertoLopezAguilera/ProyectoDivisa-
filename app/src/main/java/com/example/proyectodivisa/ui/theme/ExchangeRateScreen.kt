@@ -55,27 +55,35 @@ fun ExchangeRateScreen(viewModel: ExchangeRateViewModel) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Mostrar la gráfica de la moneda seleccionada
-            selectedCurrency?.let { currency ->
-                val historicalRates = viewModel.getHistoricalRates(context, currency, startDate, endDate)
-                ExchangeRateChart(historicalRates)
-            } ?: run {
-                Text("Selecciona una moneda para ver su gráfica.", fontSize = 16.sp)
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Lista de tasas de cambio actuales
+            // Lista de tasas de cambio actuales con la gráfica expandible
             if (rates.isEmpty()) {
                 Text("No hay datos disponibles.", color = Color.Red, fontSize = 16.sp)
             } else {
                 LazyColumn {
                     items(rates) { rate ->
-                        CurrencyCard(
-                            currency = rate.currency,
-                            rate = rate.rate,
-                            onClick = { selectedCurrency = rate.currency }
-                        )
+                        var isExpanded by remember { mutableStateOf(false) }
+
+                        Column {
+                            CurrencyCard(
+                                currency = rate.currency,
+                                rate = rate.rate,
+                                onClick = {
+                                    selectedCurrency = if (selectedCurrency == rate.currency) null else rate.currency
+                                    isExpanded = !isExpanded
+                                }
+                            )
+
+                            // Si la moneda está seleccionada, mostramos la gráfica debajo
+                            if (isExpanded) {
+                                LaunchedEffect(selectedCurrency, startDate, endDate) {
+                                    viewModel.getHistoricalRates(context, rate.currency, startDate, endDate)
+                                }
+
+                                val historicalRates by viewModel.historicalRates.observeAsState(initial = emptyList())
+
+                                ExchangeRateChart(historicalRates)
+                            }
+                        }
                     }
                 }
             }

@@ -14,7 +14,7 @@ interface ExchangeRateDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertRates(rates: List<ExchangeRate>)
 
-    @Query("SELECT * FROM exchange_rates WHERE currency = :currency BETWEEN :startDate AND :endDate")
+    @Query("SELECT * FROM exchange_rates WHERE currency = :currency AND date BETWEEN :startDate AND :endDate ORDER BY date ASC")
     fun getExchangeRatesInRangeCursor(currency: String, startDate: Long, endDate: Long): Cursor
 
     @Query("SELECT * FROM exchange_rates WHERE currency = :currency ORDER BY date DESC LIMIT 10")

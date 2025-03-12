@@ -8,8 +8,11 @@ data class ExchangeRate(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val currency: String,
     val rate: Double,
-    val date: String
-)
+    val date: Long
+) {
+    constructor() : this(0, "", 0.0, 0L) //Constructor vacío para Room
+}
+
 
 @Entity(tableName = "update_info")
 data class UpdateInfo(

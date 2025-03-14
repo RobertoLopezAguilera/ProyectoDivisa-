@@ -30,7 +30,7 @@ class ExchangeRateViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    // Método para obtener los datos históricos desde el ContentProvider
+    // Obtener los datos ContentProvider
     fun getHistoricalRates(context: Context, currency: String, startDate: Long, endDate: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             val uri = Uri.parse("content://com.example.proyectodivisa.provider/exchange_rates/$currency/$startDate/$endDate")

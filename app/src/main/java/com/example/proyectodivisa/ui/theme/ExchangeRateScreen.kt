@@ -73,7 +73,7 @@ fun ExchangeRateScreen(viewModel: ExchangeRateViewModel) {
                                 }
                             )
 
-                            // Si la moneda está seleccionada, mostramos la gráfica debajo
+                            // Si la moneda está seleccionada
                             if (isExpanded) {
                                 LaunchedEffect(selectedCurrency, startDate, endDate) {
                                     viewModel.getHistoricalRates(context, rate.currency, startDate, endDate)

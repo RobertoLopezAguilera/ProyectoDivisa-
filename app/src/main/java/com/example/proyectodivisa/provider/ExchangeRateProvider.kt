@@ -42,7 +42,7 @@ class ExchangeRateProvider : ContentProvider() {
         sortOrder: String?
     ): Cursor? {
         return runBlocking(Dispatchers.IO) {
-            val db = AppDatabase.getDatabase(context!!) // Asegura que la BD está inicializada
+            val db = AppDatabase.getDatabase(context!!) // BD inicializada
 
             val cursor: Cursor? = when (uriMatcher.match(uri)) {
                 CODE_EXCHANGE_RATE_RANGE -> {
